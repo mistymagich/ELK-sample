@@ -1,0 +1,48 @@
+elasticsearch:
+    build: elasticsearch
+    volumes:
+        - esdata:/usr/share/elasticsearch/data
+    ports:
+        - "9200:9200"
+        - "9300:9300"
+
+kibana:
+    build: kibana
+    links:
+        - elasticsearch
+    ports:
+        - "5601:5601"
+
+logstash2nginx:
+    build: logstash-nginx
+    links:
+        - elasticsearch
+    ports:
+        - "8000:80"
+    volumes:
+        - www:/usr/share/nginx/html
+
+logstash2apache:
+    build: logstash-apache
+    links:
+        - elasticsearch
+    ports:
+        - "8001:80"
+    volumes:
+        - www:/var/www/html/
+
+fluentd2apache:
+    build: fluentd-nginx
+    links:
+        - elasticsearch
+    ports:
+        - "8002:80"
+    volumes:
+        - www:/usr/share/nginx/html
+
+web:
+    image: nginx:1
+    ports:
+        - "80:80"
+    volumes:
+        - web:/usr/share/nginx/html
